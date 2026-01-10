@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% for rating in ratings %}
+    <p>{{rating.restaurant.name}}-{{rating.rating}}</p>
+{% endfor %}
+{% endblock %}

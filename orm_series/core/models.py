@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
+from django.db.models.functions import Lower
 
 # Custom Validator
 def validate_restaurant_name_begins_with_capitals(value):
@@ -27,8 +28,16 @@ class Restaurant(models.Model):
   longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)])
   restaurant_type = models.CharField(max_length=2, choices=TypeChoices.choices)
 
+  class Meta:
+    ordering = [Lower('name')] #default ordering
+    get_latest_by = 'date_opened' #default field when we call .earliest() or .latest()
+
   def __str__(self):
     return self.name
+  
+  def save (self, *args, **kwargs):
+    print(self._state.adding) # Here we can add any logic we want to execute before save executes
+    super().save(*args, **kwargs)
   
 class Ratings(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
