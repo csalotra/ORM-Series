@@ -9,7 +9,6 @@ def validate_restaurant_name_begins_with_capitals(value):
   if not value or not value[0].isupper():
     raise ValidationError('Restaurant name must begin with capital letters')
 
-
 class Restaurant(models.Model):
   class TypeChoices(models.TextChoices):
     INDIAN = 'IN', 'Indian'
@@ -38,6 +37,23 @@ class Restaurant(models.Model):
   def save (self, *args, **kwargs):
     print(self._state.adding) # Here we can add any logic we want to execute before save executes
     super().save(*args, **kwargs)
+
+class Staff(models.Model):
+  name = models.CharField(max_length=128)
+  restaurants = models.ManyToManyField(Restaurant, through="StaffRestaurant")
+
+  def __str__(self):
+    return self.name
+  
+class StaffRestaurant(models.Model):
+  staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
+  restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+  salary = models.FloatField(null=True, blank=True)
+  date_joined = models.DateField()
+  is_manager = models.BooleanField(default=False)
+
+  def __str__(self):
+    return f"{self.staff.name} - {self.restaurant.name}"  
   
 class Ratings(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
