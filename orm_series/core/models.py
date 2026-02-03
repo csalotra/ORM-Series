@@ -26,6 +26,7 @@ class Restaurant(models.Model):
   latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)])
   longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)])
   restaurant_type = models.CharField(max_length=2, choices=TypeChoices.choices)
+  capacity = models.PositiveSmallIntegerField(null=True, blank=True)
 
   class Meta:
     ordering = [Lower('name')] #default ordering
@@ -66,7 +67,24 @@ class Ratings(models.Model):
 class Sale(models.Model):
   restaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL, null=True, related_name="sales")
   income = models.DecimalField(max_digits=8, decimal_places=2)
+  expenditure = models.DecimalField(max_digits=8, decimal_places=2)
   datetime = models.DateTimeField()
+
+
+class Product(models.Model):
+  name = models.CharField(max_length=100)
+  number_in_stock = models.PositiveSmallIntegerField()
+
+  def __str__(self):
+    return self.name
+  
+class ProductSale(models.Model):
+  product = models.ForeignKey(Product, on_delete=models.CASCADE)
+  number_of_items = models.PositiveSmallIntegerField
+
+
+  def __str__(self):
+    return f"{self.product.name} - {self.number_of_items}"
 
 
   
