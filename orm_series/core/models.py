@@ -78,10 +78,9 @@ class Product(models.Model):
   def __str__(self):
     return self.name
   
-class ProductSale(models.Model):
+class Order(models.Model):
   product = models.ForeignKey(Product, on_delete=models.CASCADE)
-  number_of_items = models.PositiveSmallIntegerField
-
+  number_of_items = models.PositiveSmallIntegerField()
 
   def __str__(self):
     return f"{self.product.name} - {self.number_of_items}"

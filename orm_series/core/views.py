@@ -1,8 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils import timezone
-from .forms import RatingForm, RestaurantForm
+from .forms import RatingForm, RestaurantForm, ProductOrderForm
 from core.models import Restaurant, Sale, Ratings
 from django.db.models import Prefetch, Sum
+from django.db import transaction
+from functools import partial
+
+def email_user(email):
+  print(f"Sending email to {email}")
+
 
 def index(request):
   if request.method == 'POST':
@@ -82,5 +88,25 @@ def restaurant(request):
         return render(request, 'index.html', {'form': form})
     context = {'form': RestaurantForm()}
     return render(request, 'index.html', context)
+
+
+def order_product(request):
+  if request.method == 'POST':
+    form = ProductOrderForm(request.POST or None)
+    if form.is_valid(): #is_valid check the validators
+      with transaction.atomic():
+        order = form.save()
+        order.product.number_in_stock -= order.number_of_items
+        order.product.save()
+      transaction.on_commit(partial(email_user,"test@test.com")) # partial function
+      return redirect('order-product')
+    else:
+      context = {'form' : form}
+      return render(request, 'order.html', context)
+  form = ProductOrderForm()
+  context = {'form' : form}
+  return render(request, 'order.html', context)
+
+
 
 
